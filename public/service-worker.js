@@ -3,7 +3,7 @@ var urlsToCache = [
   "/idb.js",
   "/index.html",
   "/index.js",
-  // "/manifest.json",
+  "/manifest.webmanifest",
   "/styles.css",
   "/favicon.ico",
   "/icons/icon-144x144.png",
@@ -20,7 +20,7 @@ self.addEventListener("install", function (event) {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log("PRE-CACHE SUCCESSFUL!");
-      return cache.addAll(FILES_TO_CACHE);
+      return cache.addAll(urlsToCache);
     })
   );  
 });
