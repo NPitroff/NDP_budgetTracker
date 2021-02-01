@@ -1,25 +1,31 @@
-var CACHE_NAME = "my-site-cache-v1";
-const DATA_CACHE_NAME = "data-cache-v1";
-
 var urlsToCache = [
   "/",
   "/idb.js",
+  "/index.html",
   "/index.js",
-  "/manifest.json",
+  // "/manifest.json",
   "/styles.css",
+  "/favicon.ico",
+  "/icons/icon-144x144.png",
   "/icons/icon-192x192.png",
   "/icons/icon-512x512.png",
 ];
-//install service worker
+
+var CACHE_NAME = "my-site-cache-v1";
+const DATA_CACHE_NAME = "data-cache-v1";
+
+
+// install
 self.addEventListener("install", function (event) {
-  // Perform install steps
   event.waitUntil(
-    caches.open(CACHE_NAME).then(function (cache) {
-      console.log("Opened cache");
-      return cache.addAll(urlsToCache);
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log("PRE-CACHE SUCCESSFUL!");
+      return cache.addAll(FILES_TO_CACHE);
     })
-  );
+  );  
 });
+
+
 //activate the service worker==============================
 self.addEventListener("activate", function (event) {
   event.waitUntil(
@@ -27,7 +33,7 @@ self.addEventListener("activate", function (event) {
       return Promise.all(
         keyList.map((key) => {
           if (key !== CACHE_NAME && key !== DATA_CACHE_NAME) {
-            console.log("Removing old cache", key);
+            console.log("Removing old cache data", key);
             return caches.delete(key);
           }
         })
@@ -37,7 +43,6 @@ self.addEventListener("activate", function (event) {
 });
 //fetch all files===================================
 self.addEventListener("fetch", function (event) {
-  // cache all get requests to /api routes
   if (event.request.url.includes("/api/")) {
     event.respondWith(
       caches
@@ -49,6 +54,7 @@ self.addEventListener("fetch", function (event) {
               if (response.status === 200) {
                 cache.put(event.request.url, response.clone());
               }
+
               return response;
             })
             .catch((err) => {
@@ -58,8 +64,10 @@ self.addEventListener("fetch", function (event) {
         })
         .catch((err) => console.log(err))
     );
+
     return;
   }
+
   event.respondWith(
     fetch(event.request).catch(function () {
       return caches.match(event.request).then(function (response) {
